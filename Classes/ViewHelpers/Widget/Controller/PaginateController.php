@@ -53,12 +53,17 @@ class PaginateController extends \TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetCont
      */
     protected $maximumNumberOfLinks = 99;
 
+
+    /* initial data */
+
     /** @var int */
     protected $initialOffset = 0;
     /** @var int */
     protected $initialLimit = 0;
     /** @var int */
     protected $recordId = 0;
+    /** @var array */
+    protected $extra = [];
 
     /**
      * Initialize the action and get correct configuration
@@ -91,6 +96,11 @@ class PaginateController extends \TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetCont
         }
         if (isset($this->widgetConfiguration['initial']['recordId'])) {
             $this->recordId = (int)$this->widgetConfiguration['initial']['recordId'];
+        }
+        if (isset($this->widgetConfiguration['initial']['extra'])) {
+            $extra = $this->widgetConfiguration['initial']['extra'];
+            if (is_array($extra))
+                $this->extra = $extra;
         }
     }
 
@@ -161,9 +171,13 @@ class PaginateController extends \TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetCont
             );
         }
 
-        $this->view->assign('contentArguments', [
-            $this->widgetConfiguration['as'] => $modifiedObjects
-        ]);
+        $contentArguments = [
+                $this->widgetConfiguration['as'] => $modifiedObjects,
+            ];
+        if ($extra)
+            $contentArguments['extra'] = $this->extra;
+
+        $this->view->assign('contentArguments', $contentArguments);
         $this->view->assign('configuration', $this->configuration);
         $this->view->assign('recordId', $this->recordId);
         $this->view->assign('pageId', $this->getCurrentPageId());
